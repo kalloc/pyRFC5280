@@ -1,5 +1,10 @@
 # -*- coding:utf-8 -*-
 #
+id_ce = '2.5.29.'
+id_pkix = '1.3.6.1.5.5.7.'
+id_pe = id_pkix + '1.'
+id_qt = id_pkix + '2.'
+id_kp = id_pkix + '3.'
 
 OID = {
     #algorithm
@@ -50,6 +55,15 @@ OID = {
     '1.2.840.113549.1.9.1' : ('Email', 'Email'),
     '2.5.4.4' :  ('surname', 'surname'),
     #extensions
+    id_ce+'32' : ('certificatePolicies', 'certificatePolicies'),
+    id_qt+'1' : ('id-qt-cps', 'CPS'),
+    id_qt+'2' : ('id-qt-unotice', 'User Notice'),
+    id_ce + '17' : ('subjectAltName', 'Alternative Subject Name'),
+    id_ce + '18' : ('issuerAltName', 'Issuer Subject Name'),
+    id_ce + '9' : ('subjectDirectoryAttributes' , 'Subject Directory Attributes'),
+    id_ce + '30' : ('nameConstraints', 'Name Constraints'),
+    id_ce + '36' : ('policyConstraints', 'Policy Constraints'),
+
     '2.16.840.1.113730.1.1' : ('nsCertType', 'Netscape Cert Type'),
     '2.5.29.37' : ('extKeyUsage', 'X509v3 Extended Key Usage'),
     '2.5.29.15' : ('keyUsage', 'X509v3 Key Usage'),
@@ -58,5 +72,23 @@ OID = {
     '2.5.29.33' : ('policyMappings', 'Policy mappings'),
     '2.5.29.14' : ('subjectKeyIdentifier', 'Subject key identifier'),
     '2.5.29.35' : ('authorityKeyIdentifier', 'Authority key identifier'),
-    '1.3.6.1.5.5.7.3.2' : ('clientAuth', 'Indicates that a certificate can be used as an SSL client certificate')
+    id_kp + '2' : ('clientAuth', 'Indicates that a certificate can be used as an SSL client certificate'),
+    id_kp + '1' : ('serverAuth', 'TLS WWW server authentication'),
+    id_kp + '3' : ('codeSigning', 'Signing of downloadable executable code'),
+    id_kp + '4' : ('emailProtection', 'Email protection'),
+    id_kp + '8' : ('timeStamping', 'Binding the hash of an object to a time'),
+    id_kp + '9' : ('OCSPSigning', 'Signing OCSP responses'),
+    id_ce + '31' : ('cRLDistributionPoints', 'CRL Distribution Points'),
+    id_ce + '54' : ('inhibitAnyPolicy', 'Inhibit AnyPolicy'),
+    id_ce + '46' : ('freshestCRL', 'Freshest CRL'),
+    id_pe + '1' : ('authorityInfoAccess', 'Authority Information Access'),
+    id_pkix + '48.2' : ('caIssuers', 'caIssuers'),
+    id_pkix + '48.1' : ('ocsp', 'OCSP'),
+    id_pkix + '' : ('subjectInfoAccess', 'subjectInfoAccess'),
+    id_ce + '' : ('', ''),
+    id_ce + '' : ('', ''),
+    id_ce + '' : ('', ''),
+    id_ce + '' : ('', ''),
+    id_ce + '' : ('', ''),
+    id_ce + '' : ('', ''),
 }
