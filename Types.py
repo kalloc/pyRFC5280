@@ -28,6 +28,46 @@ class Integer(univ.Integer):
     def toHex(self, new_lines = True):
         return toHex(self._value, new_lines)
 
+class Time(univ.Choice):
+    componentType = namedtype.NamedTypes(
+        namedtype.NamedType('utcTime', useful.UTCTime()),
+        namedtype.NamedType('generalTime', useful.GeneralizedTime())
+        )
+    def __str__(self):
+        return str(self.getComponent())
+    
+class Validity(univ.Sequence):
+    componentType = namedtype.NamedTypes(
+        namedtype.NamedType('notBefore', Time()),
+        namedtype.NamedType('notAfter', Time())
+        )
+
+
+
+class Version(univ.Integer):
+    namedValues = namedval.NamedValues(
+        ('v1', 0), ('v2', 1), ('v3', 2)
+        )
+
+'''
+   SkipCerts ::= INTEGER (0..MAX)
+'''
+class SkipCerts(univ.Integer):
+    subtypeSpec = univ.Integer.subtypeSpec + constraint.ValueRangeConstraint(0, 200)
+'''
+   DisplayText ::= CHOICE {
+        ia5String        IA5String      (SIZE (1..200)),
+        visibleString    VisibleString  (SIZE (1..200)),
+        bmpString        BMPString      (SIZE (1..200)),
+        utf8String       UTF8String     (SIZE (1..200)) }
+'''
+class DisplayText(univ.Choice):
+    componentType = namedtype.NamedTypes(
+        namedtype.NamedType('ia5String', char.IA5String().subtype(implicitTag=tag.Tag(tag.tagClassContext, tag.tagFormatConstructed, 0x0))),
+        namedtype.NamedType('visibleString', char.VisibleString().subtype(implicitTag=tag.Tag(tag.tagClassContext, tag.tagFormatConstructed, 0x1))),
+        namedtype.NamedType('bmpString', char.BMPString().subtype(implicitTag=tag.Tag(tag.tagClassContext, tag.tagFormatConstructed, 0x2))),
+        namedtype.NamedType('utf8String', char.UTF8String().subtype(implicitTag=tag.Tag(tag.tagClassContext, tag.tagFormatConstructed, 0x3))),
+    )
 class ConvertibleBitString(univ.BitString):
     def prettyPrint(self, scope = 0):
         return self.toPrint()
@@ -65,9 +105,16 @@ class ObjectIdentifier(univ.ObjectIdentifier):
     def __str__(self):
         return self.toPrint()
 
-
+class PolicyQualifierId(ObjectIdentifier): pass
+class CertPolicyId(ObjectIdentifier): pass
 class AttributeValue(DirectoryString): pass
 class AttributeType(ObjectIdentifier):  pass
+class CPSuri(char.IA5String): pass
+class CertificateSerialNumber(univ.Integer): pass
+class CRLNumber(univ.Integer): pass
+class BaseCRLNumber(CRLNumber): pass
+class InvalidityDate(useful.GeneralizedTime): pass
+
 
 class AttributeTypeAndValue(univ.Sequence):
     componentType = namedtype.NamedTypes(
@@ -103,6 +150,46 @@ class UniqueIdentifier(ConvertibleBitString):
     def __repr__(self):
         return self.__str__()
 
+class DirectoryName(univ.Choice):    
+    componentType = namedtype.NamedTypes(
+        namedtype.NamedType('teletexString', char.TeletexString()),
+        namedtype.NamedType('printableString', char.PrintableString()),
+        namedtype.NamedType('universalString', char.UniversalString()),
+        namedtype.NamedType('utf8String', char.UTF8String()),
+        namedtype.NamedType('bmpString', char.BMPString()),
+    )
+
+class RelativeDistinguishedName(univ.SetOf):
+    componentType = AttributeTypeAndValue()
+
+    def __str__(self):
+        buf = ''
+        for component in self._componentValues:
+            buf += str(component)
+            buf += ','
+        buf = buf[:len(buf)-1]
+        return buf
+
+class RDNSequence(univ.SequenceOf):
+    componentType = RelativeDistinguishedName()
+
+    def __str__(self):
+        buf = ''        
+        for component in self._componentValues:            
+            buf += str(component)
+            buf += ','
+        buf = buf[:len(buf)-1]
+        return buf
+
+
+class Name(univ.Choice):
+    componentType = namedtype.NamedTypes(
+            namedtype.NamedType('', RDNSequence())
+    )
+
+    def __str__(self):
+        return str(self.getComponent())
+
 class DirectoryString(univ.Choice):    
     componentType = namedtype.NamedTypes(
         namedtype.NamedType('teletexString', char.TeletexString()),
@@ -112,7 +199,38 @@ class DirectoryString(univ.Choice):
         namedtype.NamedType('bmpString', char.BMPString()),
         namedtype.NamedType('ia5String', char.IA5String()),
         namedtype.NamedType('gString', univ.OctetString())
-    )
+        )
+    def __repr__(self):
+        try:
+          c = self.getComponent()
+          return c.__str__()
+        except:
+          return "Choice type not chosen"
+    def __str__(self):
+        return repr(self)
+
+
+class AttributeValue(DirectoryString): pass
+
+
+class AttributeType(univ.ObjectIdentifier): 
+    def __str__(self):
+        return tuple_to_OID(self._value)
+
+class AttributeTypeAndValue(univ.Sequence):
+    componentType = namedtype.NamedTypes(
+            namedtype.NamedType('type', AttributeType()),
+            namedtype.NamedType('value', AttributeValue())
+            )
+    def __repr__(self):
+        # s = "%s => %s" % [ self.getComponentByName('type'), self.getComponentByName('value')]
+        type = self.getComponentByName('type')
+        value = self.getComponentByName('value')
+        s = "%s => %s" % (type,value)
+        return s
+
+    def __str__(self):
+        return self.__repr__()
 
 
 class AttributeTypeAndValue(univ.Sequence):
@@ -133,6 +251,18 @@ class Name(univ.Choice):
     )
 
 
+class SubjectPublicKeyInfo(univ.Sequence):
+     componentType = namedtype.NamedTypes(
+         namedtype.NamedType('algorithm', AlgorithmIdentifier()),
+         namedtype.NamedType('subjectPublicKey', ConvertibleBitString())
+         )
+
+
+class signatureAlgorithm(univ.Sequence):
+    componentType = namedtype.NamedTypes(
+                namedtype.NamedType('algorithm', ObjectIdentifier()),
+                namedtype.OptionalNamedType('parameters', univ.Any())
+            )
 class GeneralName(univ.Choice):
 
     componentType = namedtype.NamedTypes(
@@ -151,6 +281,18 @@ class GeneralNames(univ.SequenceOf):
     componentType = GeneralName()
     subtypeSpec = univ.SequenceOf.subtypeSpec + constraint.ValueSizeConstraint(1, 200) 
 
+class Extension(univ.Sequence):
+    componentType = namedtype.NamedTypes(
+        namedtype.NamedType('extnID', ObjectIdentifier()),
+        namedtype.DefaultedNamedType('critical', univ.Boolean('False')),
+        namedtype.NamedType('extnValue', univ.OctetString())
+        )
+
+class Extensions(univ.SequenceOf):
+    componentType = Extension()
+    sizeSpec = univ.SequenceOf.sizeSpec
+
+class CertificateIssuer(GeneralNames): pass
 '''
   GostR3410-2001-PublicKeyParameters ::=
         SEQUENCE {

@@ -101,6 +101,5 @@ OID = {
     '2.2.840.10040.2' : ('holdInstruction', 'holdInstruction'),
     '2.2.840.10040.2.1' : ('holdinstruction-none', 'holdinstruction-none'),
     '2.2.840.10040.2.2' : ('oldinstruction-callissuer', 'oldinstruction-callissuer'),
-    '2.2.840.10040.2.3' : ('holdinstruction-reject', 'holdinstruction-reject'),
-    id_ce + '' : ('', ''),
+    '2.2.840.10040.2.3' : ('holdinstruction-reject', 'holdinstruction-reject')
 }
