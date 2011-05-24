@@ -5,6 +5,19 @@ from pyasn1.type import univ, namedtype, tag, namedval, char, constraint, useful
 from pyasn1 import error
 from oid import OID
 
+def tuple_to_OID(tuple):
+    """
+    Converts OID tuple to OID string
+    """
+    l = len(tuple)
+    buf = ''
+    for idx in xrange(l):
+        if (idx < l-1):
+            buf += str(tuple[idx]) + '.'
+        else:
+            buf += str(tuple[idx])
+    return buf
+
 def toHex(value, new_lines = True, input_is_integer = True):
         res = []
         if input_is_integer:
