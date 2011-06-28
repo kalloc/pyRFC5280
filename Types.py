@@ -294,6 +294,12 @@ class GeneralNames(univ.SequenceOf):
     componentType = GeneralName()
     subtypeSpec = univ.SequenceOf.subtypeSpec + constraint.ValueSizeConstraint(1, 200) 
 
+'''
+SubjectAltName ::= GeneralNames
+'''
+class subjectAltName(GeneralNames): pass
+
+
 class Extension(univ.Sequence):
     componentType = namedtype.NamedTypes(
         namedtype.NamedType('extnID', ObjectIdentifier()),
